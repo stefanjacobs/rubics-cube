@@ -1,6 +1,6 @@
 package main
 
-// Color represents the colors of rubicscube
+// Color represents the colors of Rubiks Cube
 type Color int
 
 const (
@@ -13,7 +13,5 @@ const (
 )
 
 func (c Color) String() string {
-//    return [...]string{"Red___", "Blue__", "White_", "Orange", "Yellow", "Green_"}[c]
     return [...]string{"R", "B", "W", "O", "Y", "G"}[c]
-
 }

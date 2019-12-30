@@ -10,7 +10,7 @@ func main() {
 	// fmt.Println("Hello Color: " + c.String())
 
 	cube := Cube{top: [][]Color{{red, white}, {white, white}},
-				bottom: [][]Color{{yellow, yellow}, {yellow, yellow}},
+				bottom: [][]Color{{yellow, yellow}, {green, yellow}},
 				left: [][]Color{{orange, orange}, {orange, orange}},
 				right: [][]Color{{red, red}, {red, red}},
 				front: [][]Color{{green, green}, {green, green}},
@@ -18,7 +18,9 @@ func main() {
 	fmt.Println("Cube looks like that: ", cube.showDetails())
 
 	// newCube := cube.actTopCCW()
-	fmt.Println("NewCube looks like that: ", cube.actionTopCW().showDetails())
+	fmt.Println("NewCube looks like that: ", cube.turnTopCW().showDetails())
 
-    fmt.Println("Turning back: ", cube.actionTopCW().actionTopCCW().showDetails() )
+	fmt.Println("Turning back: ", cube.turnTopCW().turnTopCCW().showDetails() )
+	
+	fmt.Println("Turning bottom ccw: ", cube.turnBottomCCW().showDetails())
 }
