@@ -247,15 +247,269 @@ func (cube Cube) turnBackCCW() Cube {
 }
 
 
+func (cube Cube) turnRightCW() Cube {
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  clockwise(cube.right)}
 
-// func (cube Cube) turnRightCW() Cube {}
-// func (cube Cube) turnRightCCW() Cube {}
-// func (cube Cube) turnLeftCW() Cube {}
-// func (cube Cube) turnLeftCCW() Cube {}
+	// Surrounding layers have to be moved:
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][len-1] = newCube.front[i][len-1]
+		newCube.bottom[i][len-1] = newCube.back[len-1-i][0]
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][len-1] = bB[i][len-1]
+		newCube.back[len-1-i][0] = bT[i][len-1]
+	}
 
-// func (cube Cube) actionMidXCW(layer int) Cube {}
-// func (cube Cube) actionMidXCCW(layer int) Cube {}
-// func (cube Cube) actionMidYCW(layer int) Cube {}
-// func (cube Cube) actionMidYCCW(layer int) Cube {}
-// func (cube Cube) actionMidZCW(layer int) Cube {}
-// func (cube Cube) actionMidZCCW(layer int) Cube {}
+	return newCube	
+}
+
+
+func (cube Cube) turnRightCCW() Cube {
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  counterClockwise(cube.right)}
+
+	// Surrounding layers have to be moved:
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][len-1] = newCube.back[len-1-i][0]
+		newCube.bottom[i][len-1] = newCube.front[i][len-1] 
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][len-1] = bT[i][len-1]
+		newCube.back[len-1-i][0] = bB[i][len-1]
+	}
+
+	return newCube	
+}
+
+
+func (cube Cube) turnLeftCW() Cube {
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   clockwise(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+
+	// Surrounding layers have to be moved:
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][0] = newCube.back[len-1-i][len-1]
+		newCube.bottom[i][0] = newCube.front[i][0]
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][0] = bT[i][0]
+		newCube.back[len-1-i][len-1] = bB[i][0]
+	}
+
+	return newCube	
+}
+
+
+func (cube Cube) turnLeftCCW() Cube {
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   counterClockwise(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+
+	// Surrounding layers have to be moved:
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][0] = newCube.front[i][0]
+		newCube.bottom[i][0] = newCube.back[len-1-i][len-1]
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][0] = bB[i][0]
+		newCube.back[len-1-i][len-1] = bT[i][0]
+	}
+
+	return newCube		
+}
+
+func (cube Cube) actionTopLayerCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnTopCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnBottomCCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+
+	// Surrounding layers have to be moved:
+	buffer := newCube.front[layer]
+	newCube.front[layer] = newCube.right[layer]
+	newCube.right[layer] = newCube.back[layer]
+	newCube.back[layer] = newCube.left[layer]
+	newCube.left[layer] = buffer
+    return newCube
+}
+
+func (cube Cube) actionTopLayerCCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnTopCCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnBottomCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+
+	// Surrounding layers have to be moved:
+	buffer := newCube.front[layer]
+	newCube.front[layer] = newCube.left[layer]
+	newCube.left[layer] = newCube.back[layer]
+	newCube.back[layer] = newCube.right[layer]
+	newCube.right[layer] = buffer
+    return newCube
+}
+
+func (cube Cube) actionFrontLayerCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnFrontCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnBackCCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+
+	len := len(newCube.front)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[len-1-layer][i] = newCube.left[len-1-i][len-1-layer]
+		newCube.bottom[layer][i] = newCube.right[len-1-i][layer]
+	}
+	for i := 0; i < len; i++ {
+		newCube.right[i][layer] = bT[len-1-layer][i]
+		newCube.left[i][len-1-layer] = bB[layer][i]
+	}
+
+	return newCube
+}
+
+func (cube Cube) actionFrontLayerCCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnFrontCCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnBackCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  duplicate(cube.right)}
+	
+	len := len(newCube.front)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[len-1-layer][i] = newCube.right[i][layer]
+		newCube.bottom[layer][i] = newCube.left[i][len-1-layer]
+	}
+	for i := 0; i < len; i++ {
+		newCube.right[i][layer] = bB[layer][len-1-i]
+		newCube.left[i][len-1-layer] = bT[len-1-layer][len-1-i]
+	}
+
+	return newCube
+}
+
+func (cube Cube) actionRightLayerCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnRightCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnLeftCCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  clockwise(cube.right)}
+	// Surrounding layers have to be moved:
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][len-1-layer] = newCube.front[i][len-1-layer]
+		newCube.bottom[i][len-1-layer] = newCube.back[len-1-i][layer]
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][len-1-layer] = bB[i][len-1-layer]
+		newCube.back[len-1-i][layer] = bT[i][len-1-layer]
+	}
+
+	return newCube	
+}
+
+
+func (cube Cube) actionRightLayerCCW(layer int) Cube {
+	if layer == 0 {
+		return cube.turnRightCCW()
+	} else if layer == len(cube.top[0]) - 1 {
+		return cube.turnLeftCW()
+	}
+	newCube := Cube{
+		top:    duplicate(cube.top),
+		bottom: duplicate(cube.bottom),
+		front:  duplicate(cube.front),
+		left:   duplicate(cube.left),
+		back:   duplicate(cube.back),
+		right:  clockwise(cube.right)}
+	// Surrounding layers have to be moved
+	len := len(newCube.back)
+	bT := duplicate(newCube.top)
+	bB := duplicate(newCube.bottom)
+	for i := 0; i < len; i++ {
+		newCube.top[i][len-1-layer] = newCube.back[len-1-i][layer]
+		newCube.bottom[i][len-1-layer] = newCube.front[i][len-1-layer] 
+	}
+	for i := 0; i < len; i++ {
+		newCube.front[i][len-1-layer] = bT[i][len-1-layer]
+		newCube.back[len-1-i][layer] = bB[i][len-1-layer]
+	}
+
+	return newCube	
+
+}

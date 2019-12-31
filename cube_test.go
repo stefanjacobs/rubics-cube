@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// Tests cube actions with some exemplary samples
 func TestCube(t *testing.T) {
 	fmt.Println("Running 3x3x3 Testsuite")
 	cube := Cube{
@@ -39,7 +40,6 @@ func TestCube(t *testing.T) {
 		t.Errorf("Turning bottom counter clockwise did not work properly")
 	}
 
-// -- bis hier validiert - 
 	frontCW := cube.turnFrontCW()
 	// fmt.Println(frontCW.showDetails())
 	if frontCW.top[2][2] != green || frontCW.front[0][0] != red || frontCW.right[1][0] != orange {
@@ -59,8 +59,113 @@ func TestCube(t *testing.T) {
 	}
 
 	backCCW := cube.turnBackCCW()
-	//fmt.Println(backCCW.showDetails())
+	// fmt.Println(backCCW.showDetails())
 	if backCCW.top[0][0] != yellow || backCCW.bottom[2][1] != green || backCCW.right[2][2] != yellow {
 		t.Errorf("Turning back counterclockwise did not work properly")
 	}
+
+	rightCW := cube.turnRightCW()
+	// fmt.Println(rightCW.showDetails())
+	if rightCW.top[2][2] != blue || rightCW.front[0][2] != white || rightCW.back[0][0] != yellow {
+		t.Errorf("Turning right clockwise did not work properly")
+	}
+
+	rightCCW := cube.turnRightCCW()
+	// fmt.Println(rightCCW.showDetails())
+	if rightCCW.top[2][2] != red || rightCCW.front[0][2] != yellow || rightCCW.back[0][0] != red {
+		t.Errorf("Turning right counter clockwise did not work properly")
+	}
+
+	leftCW := cube.turnLeftCW()
+	// fmt.Println(leftCW.showDetails())
+	if leftCW.top[0][0] != orange || leftCW.front[2][0] != orange || leftCW.back[1][2] != orange {
+		t.Errorf("Turning left clockwise did not work properly")
+	}
+
+	leftCCW := cube.turnLeftCCW()
+	// fmt.Println(leftCCW.showDetails())
+	if leftCCW.top[0][0] != white || leftCCW.front[2][0] != blue || leftCCW.back[1][2] != green {
+		t.Errorf("Turning left counter clockwise did not work properly")
+	}
+}
+
+// todo: automate tests, no output
+func TestCubeActions(t *testing.T) {
+	fmt.Println("Running 3x3x3 Testsuite")
+	cube := Cube{
+		top:    [][]Color{{white, white, white}, {white, white, white}, {white, white, white}},
+		bottom: [][]Color{{yellow, yellow, yellow}, {yellow, yellow, yellow}, {yellow, yellow, yellow}},
+		front:  [][]Color{{orange, orange, orange}, {orange, orange, orange}, {orange, orange, orange}},
+		right:  [][]Color{{green, green, green}, {green, green, green}, {green, green, green}},
+		back:   [][]Color{{red, red, red}, {red, red, red}, {red, red, red}},
+		left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
+
+    topCW0 := cube.actionTopLayerCW(0)
+	fmt.Println(topCW0.showDetails())
+    topCW1 := cube.actionTopLayerCW(1)
+	fmt.Println(topCW1.showDetails())    
+	topCW2 := cube.actionTopLayerCW(2)
+	fmt.Println(topCW2.showDetails())
+
+    topCCW0 := cube.actionTopLayerCCW(0)
+	fmt.Println(topCCW0.showDetails())
+    topCCW1 := cube.actionTopLayerCCW(1)
+	fmt.Println(topCCW1.showDetails())    
+	topCCW2 := cube.actionTopLayerCCW(2)
+	fmt.Println(topCCW2.showDetails())
+
+    frontCW0 := cube.actionFrontLayerCW(0)
+	fmt.Println(frontCW0.showDetails())
+    frontCW1 := cube.actionFrontLayerCW(1)
+	fmt.Println(frontCW1.showDetails())    
+	frontCW2 := cube.actionFrontLayerCW(2)
+	fmt.Println(frontCW2.showDetails())
+
+    frontCCW0 := cube.actionFrontLayerCCW(0)
+	// fmt.Println(frontCCW0.showDetails())
+	if frontCCW0.top[2][0] != green || frontCCW0.left[0][2] != white || frontCCW0.bottom[0][2] != blue {
+		t.Errorf("Turning front counter clockwise did not work properly")
+	}
+    frontCCW1 := cube.actionFrontLayerCCW(1)
+	// fmt.Println(frontCCW1.showDetails())
+	if frontCCW1.top[1][1] != green || frontCCW1.left[0][1] != white || frontCCW1.bottom[1][1] != blue {
+		t.Errorf("Turning front counter clockwise did not work properly")
+	}
+	frontCCW2 := cube.actionFrontLayerCCW(2)
+	// fmt.Println(frontCCW2.showDetails())
+	if frontCCW2.top[0][0] != green || frontCCW2.left[0][0] != white || frontCCW2.bottom[2][2] != blue {
+		t.Errorf("Turning front counter clockwise did not work properly")
+	}
+
+    rightCW0 := cube.actionRightLayerCW(0)
+	// fmt.Println(rightCW0.showDetails())
+	if rightCW0.top[2][2] != orange || rightCW0.front[0][2] != yellow || rightCW0.back[0][0] != white {
+		t.Errorf("Turning right clockwise did not work properly")
+	}
+	rightCW1 := cube.actionRightLayerCW(1)
+	// fmt.Println(rightCW1.showDetails())
+	if rightCW1.top[2][1] != orange || rightCW1.front[0][1] != yellow || rightCW1.back[0][1] != white {
+		t.Errorf("Turning right clockwise did not work properly")
+	}
+	rightCW2 := cube.actionRightLayerCW(2)
+	// fmt.Println(rightCW2.showDetails())
+	if rightCW2.top[2][0] != orange || rightCW2.front[0][0] != yellow || rightCW2.back[0][2] != white {
+		t.Errorf("Turning right clockwise did not work properly")
+	}
+
+    rightCCW0 := cube.actionRightLayerCCW(0)
+	// fmt.Println(rightCCW0.showDetails())
+	if rightCCW0.top[0][2] != red || rightCCW0.front[2][2] != white || rightCCW0.back[2][0] != yellow {
+		t.Errorf("Turning right counter clockwise did not work properly")
+	}
+	rightCCW1 := cube.actionRightLayerCCW(1)
+	// fmt.Println(rightCCW1.showDetails())    
+	if rightCCW1.top[0][1] != red || rightCCW1.front[2][1] != white || rightCCW1.back[2][1] != yellow {
+		t.Errorf("Turning right counter clockwise did not work properly")
+	}
+	rightCCW2 := cube.actionRightLayerCCW(2)
+	// fmt.Println(rightCCW2.showDetails())
+	if rightCCW2.top[0][0] != red || rightCCW2.front[2][0] != white || rightCCW2.back[2][2] != yellow {
+		t.Errorf("Turning right counter clockwise did not work properly")
+	}	
 }
