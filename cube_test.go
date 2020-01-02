@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 	"testing"
 )
 
 // Tests cube actions with some exemplary samples
 func TestCube(t *testing.T) {
-	fmt.Println("Running 3x3x3 Testsuite")
+	// fmt.Println("Running 3x3x3 Testsuite")
 	cube := Cube{
 		top:    [][]Color{{blue, orange, yellow}, {green, white, orange}, {orange, orange, yellow}},
 		bottom: [][]Color{{green, blue, white}, {orange, yellow, red}, {blue, blue, red}},
@@ -91,7 +91,7 @@ func TestCube(t *testing.T) {
 
 // todo: automate tests, no output
 func TestCubeActions(t *testing.T) {
-	fmt.Println("Running 3x3x3 Testsuite")
+	// fmt.Println("Running 3x3x3 Testsuite")
 	cube := Cube{
 		top:    [][]Color{{white, white, white}, {white, white, white}, {white, white, white}},
 		bottom: [][]Color{{yellow, yellow, yellow}, {yellow, yellow, yellow}, {yellow, yellow, yellow}},
@@ -101,25 +101,52 @@ func TestCubeActions(t *testing.T) {
 		left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
 
     topCW0 := cube.actionTopLayerCW(0)
-	fmt.Println(topCW0.showDetails())
+	// fmt.Println(topCW0.showDetails())
+	if topCW0.front[0][0] != green || topCW0.left[0][0] != orange || topCW0.back[0][2] != blue {
+		t.Errorf("Turning top clockwise did not work properly")
+	}
     topCW1 := cube.actionTopLayerCW(1)
-	fmt.Println(topCW1.showDetails())    
+	// fmt.Println(topCW1.showDetails())
+	if topCW1.front[1][0] != green || topCW1.left[1][1] != orange || topCW1.back[1][2] != blue {
+		t.Errorf("Turning top clockwise did not work properly")
+	}
 	topCW2 := cube.actionTopLayerCW(2)
-	fmt.Println(topCW2.showDetails())
+	// fmt.Println(topCW2.showDetails())
+	if topCW2.front[2][0] != green || topCW2.left[2][2] != orange || topCW2.back[2][2] != blue {
+		t.Errorf("Turning top clockwise did not work properly")
+	}
 
     topCCW0 := cube.actionTopLayerCCW(0)
-	fmt.Println(topCCW0.showDetails())
+	// fmt.Println(topCCW0.showDetails())
+	if topCCW0.front[0][0] != blue || topCCW0.left[0][0] != red || topCCW0.back[0][0] != green {
+		t.Errorf("Turning top counter clockwise did not work properly")
+	}
     topCCW1 := cube.actionTopLayerCCW(1)
-	fmt.Println(topCCW1.showDetails())    
+	// fmt.Println(topCCW1.showDetails())
+	if topCCW1.front[1][0] != blue || topCCW1.left[1][0] != red || topCCW1.back[1][1] != green {
+		t.Errorf("Turning top counter clockwise did not work properly")
+	}
 	topCCW2 := cube.actionTopLayerCCW(2)
-	fmt.Println(topCCW2.showDetails())
+	// fmt.Println(topCCW2.showDetails())
+	if topCCW2.front[2][0] != blue || topCCW2.left[2][0] != red || topCCW2.back[2][2] != green {
+		t.Errorf("Turning top counter clockwise did not work properly")
+	}
 
     frontCW0 := cube.actionFrontLayerCW(0)
-	fmt.Println(frontCW0.showDetails())
+	// fmt.Println(frontCW0.showDetails())
+	if frontCW0.top[2][2] != blue || frontCW0.left[1][2] != yellow || frontCW0.bottom[0][0] != green {
+		t.Errorf("Turning front clockwise did not work properly")
+	}
     frontCW1 := cube.actionFrontLayerCW(1)
-	fmt.Println(frontCW1.showDetails())    
-	frontCW2 := cube.actionFrontLayerCW(2)
-	fmt.Println(frontCW2.showDetails())
+    // fmt.Println(frontCW1.showDetails())
+	if frontCW1.top[1][1] != blue || frontCW1.left[1][1] != yellow || frontCW1.bottom[1][1] != green {
+		t.Errorf("Turning front clockwise did not work properly")
+	}
+    frontCW2 := cube.actionFrontLayerCW(2)
+	// fmt.Println(frontCW2.showDetails())
+	if frontCW2.top[0][0] != blue || frontCW2.left[2][0] != yellow || frontCW2.bottom[2][2] != green {
+		t.Errorf("Turning front clockwise did not work properly")
+	}
 
     frontCCW0 := cube.actionFrontLayerCCW(0)
 	// fmt.Println(frontCCW0.showDetails())

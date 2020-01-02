@@ -28,14 +28,14 @@ func (s SimpleState) getChildren() []State {
 		state: s.state-1,
 		previous: &s,
 		cost: s.cost+1,
+		estimateOverall: -1,
 	}
-	low.estimateOverall = low.getCost() + low.getEstimate()
 	high := SimpleState{
 		state: s.state+1,
 		previous: &s,
 		cost: s.cost+1,
+		estimateOverall: -1,
 	}
-	high.estimateOverall = high.getCost() + high.getEstimate()
 	res := make([]State, 2)
 	res[0]=low
 	res[1]=high
@@ -62,7 +62,7 @@ func (s SimpleState) getHash() string {
 	return strconv.Itoa(s.state)
 }
 
-    // return Cost + Estimate
+    // return Cost + Estimate, if estimate Overall is not yet calculated
 func (s SimpleState) getEstimateOverall() int {
 	if s.estimateOverall == -1 {
 		s.estimateOverall = s.cost + s.getEstimate()
