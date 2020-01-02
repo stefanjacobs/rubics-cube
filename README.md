@@ -1,5 +1,10 @@
 # Rubiks Cube solver
 
+## IMPORTANT
+
+I am a GoLang learner - not proficient or regularly using it... Take the sources with care, if
+you do at all ;-)
+
 ## Base Assumptions
 
 - The cube has six colors
