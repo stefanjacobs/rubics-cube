@@ -78,8 +78,8 @@ func main() {
 			}
 			pos, alreadyOnOpenList := openList.Contains(child)
 			if alreadyOnOpenList != nil && alreadyOnOpenList.getEstimateOverall() <= child.getEstimate() {
-				// child is already on openlist, OR
-				// the element on the openlist is less or equal expensive
+				// child is already on openlist AND
+				// the element on the openlist is less or equal expensive overall
 				continue
 			}
 			if alreadyOnOpenList != nil {
