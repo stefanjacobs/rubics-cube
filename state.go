@@ -18,7 +18,7 @@ type State interface {
     // return cost of current state
     getCost() int
 
-    // return the previous state, null, if it is the initial state
+    // return the previous state, nil, if it is the initial state
     getPrevious() State
 
     // return a hash value of the state

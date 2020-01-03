@@ -1,4 +1,3 @@
-
 package main
 
 import "math"
@@ -14,9 +13,11 @@ type SimpleState struct {
 	estimateOverall int
 }
 
+const goal = 10 
+
 // check, if final state is reached
 func (s SimpleState) isFinal() bool {
-	if s.state == 10 {
+	if s.state == goal {
 		return true
 	}
 	return false
@@ -24,27 +25,31 @@ func (s SimpleState) isFinal() bool {
 
 // generate all follow-up states and return list of new states
 func (s SimpleState) getChildren() []State {
-	low := SimpleState{
-		state: s.state-1,
-		previous: &s,
-		cost: s.cost+1,
-		estimateOverall: -1,
+	var res []State
+	if s.state > -20 {	
+		low := SimpleState{
+			state: s.state-1,
+			previous: &s,
+			cost: s.cost+1,
+			estimateOverall: -1,
+		}
+		res = append(res, low)
 	}
-	high := SimpleState{
-		state: s.state+1,
-		previous: &s,
-		cost: s.cost+1,
-		estimateOverall: -1,
+	if s.state < 20 {
+		high := SimpleState{
+			state: s.state+1,
+			previous: &s,
+			cost: s.cost+1,
+			estimateOverall: -1,
+		}
+		res = append(res, high)
 	}
-	res := make([]State, 2)
-	res[0]=low
-	res[1]=high
 	return res
 }
 
 // return an estimate to the final state -> no overestimation!
 func (s SimpleState) getEstimate() int {
-	return int(math.Abs(10.0-float64(s.state)))
+	return int(math.Abs(float64(goal)-float64(s.state)))
 }
 
 // return cost of current state
@@ -52,8 +57,11 @@ func (s SimpleState) getCost() int {
 	return s.cost
 }
 
-// return the previous state, null, if it is the initial state
+// return the previous state, nil, if it is the initial state
 func (s SimpleState) getPrevious() State {
+	if s.previous == nil {
+		return nil
+	}
 	return s.previous
 }
 

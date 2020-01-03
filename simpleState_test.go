@@ -20,6 +20,9 @@ func TestSimpleState(t *testing.T) {
 	if s.getEstimate() != 10 {
 		t.Errorf("Estimate of SimpleState is initially not 10")
 	}
+	if s.getEstimateOverall() != 10 {
+		t.Errorf("Estimate Overall is not correct - should be ten")
+	}
 
 	children := s.getChildren()
 	if len(children) != 2 {

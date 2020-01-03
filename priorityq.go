@@ -38,3 +38,13 @@ func (pq *priorityQueue) Push(x interface{}) {
 func (pq priorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
+
+func (pq *priorityQueue) Contains(s State) (int, State) {
+	sHash := s.getHash()
+	for i, element := range *pq {
+		if element.getHash() == sHash {
+			return i, element
+		}
+	}
+	return -1, nil
+}

@@ -33,9 +33,19 @@ func TestPriorityQ(t *testing.T) {
 	if item.getHash() != "5" {
 		t.Errorf("First item in priority was not the expected one...")
 	}
+
+	_, check := pQueue.Contains(newItem)
+	if check == nil {
+		t.Errorf("Queue should contain the searched item")
+	}
+
 	item = heap.Pop(&pQueue).(*SimpleState)
 	if item.getHash() != "4" {
 		t.Errorf("First item in priority was not the expected one...")
+	}
+	_, check = pQueue.Contains(newItem)
+	if check != nil {
+		t.Errorf("Queue should NOT contain the searched item")
 	}
 	item = heap.Pop(&pQueue).(*SimpleState)
 	if item.getHash() != "3" {
