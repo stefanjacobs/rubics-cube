@@ -40,7 +40,7 @@ func TestSimpleState(t *testing.T) {
 	}
 
 	// fmt.Println("State is ", children[0].getHash())
-    if !(children[0].getHash() == "-1") {
+    if !(children[0].getHash() == -1) {
 		t.Errorf("State representation is not correct")
 	}
 

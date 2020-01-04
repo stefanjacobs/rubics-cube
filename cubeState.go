@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -8,48 +7,48 @@ import (
 
 // CubeState is a search problem:
 type CubeState struct {
-	state Cube 
-	previous *CubeState
-	cost int
+	state           Cube
+	previous        *CubeState
+	cost            int
 	estimateOverall int
-	action string
+	action          string
 }
 
 // check, if final state is reached
 func (s CubeState) isFinal() bool {
 	return isUniformColor(s.state.top) && isUniformColor(s.state.bottom) &&
-			isUniformColor(s.state.front) && isUniformColor(s.state.back) &&
-			isUniformColor(s.state.left) && isUniformColor(s.state.right)
+		isUniformColor(s.state.front) && isUniformColor(s.state.back) &&
+		isUniformColor(s.state.left) && isUniformColor(s.state.right)
 }
 
 // generate all follow-up CubeStates and return list of new States
 func (s CubeState) getChildren() []State {
 	var res []State
-	for i:=0; i<len(s.state.top); i++ {
-		res=append(res, CubeState{
-			state: s.state.actionFrontLayerCCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Front CCW Layer " + strconv.Itoa(i) })		
-		res=append(res, CubeState{
-			state: s.state.actionFrontLayerCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Front CW Layer " + strconv.Itoa(i) })
-		res=append(res, CubeState{
-			state: s.state.actionTopLayerCCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Top CCW Layer " + strconv.Itoa(i) })
-		res=append(res, CubeState{
-			state: s.state.actionTopLayerCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Top CW Layer " + strconv.Itoa(i) })
-		res=append(res, CubeState{
-			state: s.state.actionRightLayerCCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Right CCW Layer " + strconv.Itoa(i) })
-		res=append(res, CubeState{
-			state: s.state.actionRightLayerCW(i),
-			previous: &s, cost: s.cost+1, estimateOverall: -1,
-			action: "Right CW Layer " + strconv.Itoa(i) })
+	for i := 0; i < len(s.state.top); i++ {
+		res = append(res, CubeState{
+			state:    s.state.actionFrontLayerCCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Front CCW Layer " + strconv.Itoa(i)})
+		res = append(res, CubeState{
+			state:    s.state.actionFrontLayerCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Front CW Layer " + strconv.Itoa(i)})
+		res = append(res, CubeState{
+			state:    s.state.actionTopLayerCCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Top CCW Layer " + strconv.Itoa(i)})
+		res = append(res, CubeState{
+			state:    s.state.actionTopLayerCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Top CW Layer " + strconv.Itoa(i)})
+		res = append(res, CubeState{
+			state:    s.state.actionRightLayerCCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Right CCW Layer " + strconv.Itoa(i)})
+		res = append(res, CubeState{
+			state:    s.state.actionRightLayerCW(i),
+			previous: &s, cost: s.cost + 1, estimateOverall: -1,
+			action: "Right CW Layer " + strconv.Itoa(i)})
 	}
 	return res
 }
@@ -57,12 +56,12 @@ func (s CubeState) getChildren() []State {
 // return an estimate to the final state -> no overestimation for admissible heuristic
 func (s CubeState) getEstimate() int {
 	var m []int
-	m=append(m, heuristic(s.state.front))
-	m=append(m, heuristic(s.state.back))
-	m=append(m, heuristic(s.state.left))
-	m=append(m, heuristic(s.state.right))
-	m=append(m, heuristic(s.state.top))
-	m=append(m, heuristic(s.state.bottom))
+	m = append(m, heuristic(s.state.front))
+	m = append(m, heuristic(s.state.back))
+	m = append(m, heuristic(s.state.left))
+	m = append(m, heuristic(s.state.right))
+	m = append(m, heuristic(s.state.top))
+	m = append(m, heuristic(s.state.bottom))
 	return maxOfSlice(m)
 }
 
@@ -80,19 +79,29 @@ func (s CubeState) getPrevious() State {
 }
 
 // return a string hash representation of the simple state
-func (s CubeState) getHash() string {
+func (s CubeState) getHash() int {
+	top := ident(s.state.top)
+	bot := ident(s.state.bottom)
+	fro := ident(s.state.front)
+	bac := ident(s.state.back)
+	lef := ident(s.state.left)
+	rig := ident(s.state.right)
+	return top + bot*intPow(8, 1) + fro*intPow(8, 2) +
+            bac*intPow(8,3) + lef*intPow(8,4) + rig*intPow(8,5)
 
-	return ident(s.state.top) + ident(s.state.bottom) + ident(s.state.back) + 
-		ident(s.state.front) + ident(s.state.left) + ident(s.state.right)
+	// return strconv.Itoa(ident(s.state.top)) +
+	// 	strconv.Itoa(ident(s.state.bottom)) +
+	// 	strconv.Itoa(ident(s.state.back)) +
+	// 	strconv.Itoa(ident(s.state.front)) +
+	// 	strconv.Itoa(ident(s.state.left)) +
+	// 	strconv.Itoa(ident(s.state.right))
 
-	// return fmt.Sprintf("%v", s.state.front) + fmt.Sprintf("%v", s.state.back) + fmt.Sprintf("%v", s.state.top) +
-	// 	fmt.Sprintf("%v", s.state.bottom) + fmt.Sprintf("%v", s.state.left) + fmt.Sprintf("%v", s.state.right)
-
-
-
+	// return fmt.Sprintf("%v|%v|%v|%v|%v|%v", 
+	// 	s.state.front, s.state.back, s.state.top,
+	//  	s.state.bottom, s.state.left, s.state.right)
 }
 
-    // return Cost + Estimate, if estimate Overall is not yet calculated
+// return Cost + Estimate, if estimate Overall is not yet calculated
 func (s CubeState) getEstimateOverall() int {
 	if s.estimateOverall == -1 {
 		s.estimateOverall = s.cost + s.getEstimate()

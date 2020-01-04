@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	//	"math"
+)
 
 // Cube is a representation of a Rubiks Cube
 type Cube struct {
@@ -51,10 +54,10 @@ func counterClockwise(layer [][]Color) [][]Color {
 }
 
 // Check, if a layer is only of one color
-func isUniformColor(layer[][]Color) bool {
+func isUniformColor(layer [][]Color) bool {
 	initColor := layer[0][0]
-	for _, line := range(layer) {
-		for _, c := range(line) {
+	for _, line := range layer {
+		for _, c := range line {
 			if c != initColor {
 				return false
 			}
@@ -79,20 +82,37 @@ func min(x, y int) int {
 
 func maxOfSlice(x []int) int {
 	maxVal := 0
-	for _, value := range(x) {
+	for _, value := range x {
 		if value > maxVal {
-			maxVal=value
+			maxVal = value
 		}
 	}
 	return maxVal
 }
 
+var powTable = make([]int, 200)
+
+func intPow(x, p int) int {
+	val := powTable[p]
+	if val > 0 {
+		return val
+	}
+	val = 1
+	for i := 0; i < p; i++ {
+		val = val * x
+	}
+	powTable[p] = val
+	return val
+}
+
 // Return ident nr of layer
-func ident(layer [][]Color) string {
-	var val string
-	for _, v := range(layer) {
-		for _, w := range(v) {
-			val += w.String()
+func ident(layer [][]Color) int {
+	val := 0
+	length := len(layer)
+	for i, v := range layer {
+		for j, w := range v {
+			curPos := i*length+j
+			val += w.Int() * intPow(8, curPos)
 		}
 	}
 	return val
@@ -101,13 +121,13 @@ func ident(layer [][]Color) string {
 // Return a heuristic. Max value is 3...
 func heuristic(layer [][]Color) int {
 	colorMap := map[Color]int{}
-	for _, line := range(layer) {
-		for _, element := range(line) {
+	for _, line := range layer {
+		for _, element := range line {
 			colorMap[element] = 1
 		}
 	}
 	colorCount := 0
-	for _, c := range(colorMap) {
+	for _, c := range colorMap {
 		colorCount += c
 	}
 	return min(3, colorCount-1) // middle stone always has correct color, so decrease one
@@ -280,7 +300,7 @@ func (cube Cube) turnBackCW() Cube {
 		newCube.left[i][0] = bT[0][len-1-i]
 	}
 
-	return newCube	
+	return newCube
 }
 
 // turn back counterclockwise
@@ -306,9 +326,8 @@ func (cube Cube) turnBackCCW() Cube {
 		newCube.left[i][0] = bB[len-1][i]
 	}
 
-	return newCube	
+	return newCube
 }
-
 
 func (cube Cube) turnRightCW() Cube {
 	newCube := Cube{
@@ -332,9 +351,8 @@ func (cube Cube) turnRightCW() Cube {
 		newCube.back[len-1-i][0] = bT[i][len-1]
 	}
 
-	return newCube	
+	return newCube
 }
-
 
 func (cube Cube) turnRightCCW() Cube {
 	newCube := Cube{
@@ -351,16 +369,15 @@ func (cube Cube) turnRightCCW() Cube {
 	bB := duplicate(newCube.bottom)
 	for i := 0; i < len; i++ {
 		newCube.top[i][len-1] = newCube.back[len-1-i][0]
-		newCube.bottom[i][len-1] = newCube.front[i][len-1] 
+		newCube.bottom[i][len-1] = newCube.front[i][len-1]
 	}
 	for i := 0; i < len; i++ {
 		newCube.front[i][len-1] = bT[i][len-1]
 		newCube.back[len-1-i][0] = bB[i][len-1]
 	}
 
-	return newCube	
+	return newCube
 }
-
 
 func (cube Cube) turnLeftCW() Cube {
 	newCube := Cube{
@@ -384,9 +401,8 @@ func (cube Cube) turnLeftCW() Cube {
 		newCube.back[len-1-i][len-1] = bB[i][0]
 	}
 
-	return newCube	
+	return newCube
 }
-
 
 func (cube Cube) turnLeftCCW() Cube {
 	newCube := Cube{
@@ -410,13 +426,13 @@ func (cube Cube) turnLeftCCW() Cube {
 		newCube.back[len-1-i][len-1] = bT[i][0]
 	}
 
-	return newCube		
+	return newCube
 }
 
 func (cube Cube) actionTopLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnTopCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnBottomCCW()
 	}
 	newCube := Cube{
@@ -433,13 +449,13 @@ func (cube Cube) actionTopLayerCW(layer int) Cube {
 	newCube.right[layer] = newCube.back[layer]
 	newCube.back[layer] = newCube.left[layer]
 	newCube.left[layer] = buffer
-    return newCube
+	return newCube
 }
 
 func (cube Cube) actionTopLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnTopCCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnBottomCW()
 	}
 	newCube := Cube{
@@ -456,13 +472,13 @@ func (cube Cube) actionTopLayerCCW(layer int) Cube {
 	newCube.left[layer] = newCube.back[layer]
 	newCube.back[layer] = newCube.right[layer]
 	newCube.right[layer] = buffer
-    return newCube
+	return newCube
 }
 
 func (cube Cube) actionFrontLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnFrontCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnBackCCW()
 	}
 	newCube := Cube{
@@ -491,7 +507,7 @@ func (cube Cube) actionFrontLayerCW(layer int) Cube {
 func (cube Cube) actionFrontLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnFrontCCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnBackCW()
 	}
 	newCube := Cube{
@@ -501,7 +517,7 @@ func (cube Cube) actionFrontLayerCCW(layer int) Cube {
 		left:   duplicate(cube.left),
 		back:   duplicate(cube.back),
 		right:  duplicate(cube.right)}
-	
+
 	len := len(newCube.front)
 	bT := duplicate(newCube.top)
 	bB := duplicate(newCube.bottom)
@@ -520,7 +536,7 @@ func (cube Cube) actionFrontLayerCCW(layer int) Cube {
 func (cube Cube) actionRightLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnRightCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnLeftCCW()
 	}
 	newCube := Cube{
@@ -543,14 +559,13 @@ func (cube Cube) actionRightLayerCW(layer int) Cube {
 		newCube.back[len-1-i][layer] = bT[i][len-1-layer]
 	}
 
-	return newCube	
+	return newCube
 }
-
 
 func (cube Cube) actionRightLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnRightCCW()
-	} else if layer == len(cube.top[0]) - 1 {
+	} else if layer == len(cube.top[0])-1 {
 		return cube.turnLeftCW()
 	}
 	newCube := Cube{
@@ -566,13 +581,13 @@ func (cube Cube) actionRightLayerCCW(layer int) Cube {
 	bB := duplicate(newCube.bottom)
 	for i := 0; i < len; i++ {
 		newCube.top[i][len-1-layer] = newCube.back[len-1-i][layer]
-		newCube.bottom[i][len-1-layer] = newCube.front[i][len-1-layer] 
+		newCube.bottom[i][len-1-layer] = newCube.front[i][len-1-layer]
 	}
 	for i := 0; i < len; i++ {
 		newCube.front[i][len-1-layer] = bT[i][len-1-layer]
 		newCube.back[len-1-i][layer] = bB[i][len-1-layer]
 	}
 
-	return newCube	
+	return newCube
 
 }

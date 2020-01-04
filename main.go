@@ -86,8 +86,8 @@ func main() {
 	// 	back:   [][]Color{{red, yellow, orange}, {white, red, white}, {green, white, orange}}}
 
 	s0 := CubeState{
-		// state: cube.actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
-		state: cube.actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
+		// state: cube.actionTopLayerCW(2).actionRightLayerCCW(1).actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
+		state: cube.actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
 		// state: cube,
 		previous:        nil,
 		cost:            0,
@@ -106,7 +106,7 @@ func main() {
 			break
 		}
 		// fmt.Printf("state: %s, Action: %s\n", solution.getHash(), solution.(CubeState).action)
-		fmt.Printf("state: %s\n", solution.getHash())
+		fmt.Printf("state: %v\n", solution.getHash())
 		solution = solution.getPrevious()
 	}
 

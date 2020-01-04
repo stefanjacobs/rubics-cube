@@ -11,7 +11,7 @@ func aStarSolve(s0 State) State {
 	heap.Init(&openList)
 
 	// Create an empty ClosedList
-	closedList := map[string]bool{} // check for existence with _, ok := s[6]
+	closedList := map[int]bool{} // check for existence with _, ok := s[6]
 	for ;; {
 		// if the openlist is empty, there is no solution
 		if openList.Len() == 0 {
@@ -41,6 +41,8 @@ func aStarSolve(s0 State) State {
 				heap.Push(&openList, child)
 			}
 		}
-		fmt.Printf("OL: %v, CL: %v\n", len(openList), len(closedList))
+		if len(closedList)%100 == 0 {
+			fmt.Printf("OL: %v, CL: %v\n", len(openList), len(closedList))
+		}
 	}
 }

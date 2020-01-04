@@ -1,7 +1,7 @@
 package main
 
 import "math"
-import "strconv"
+// import "strconv"
 
 // SimpleState is a trivial search problem:
 // search on one-dimensional grid for value 10
@@ -66,8 +66,8 @@ func (s SimpleState) getPrevious() State {
 }
 
 // return a string hash representation of the simple state
-func (s SimpleState) getHash() string {
-	return strconv.Itoa(s.state)
+func (s SimpleState) getHash() int {
+	return s.state
 }
 
     // return Cost + Estimate, if estimate Overall is not yet calculated
