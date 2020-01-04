@@ -50,6 +50,69 @@ func counterClockwise(layer [][]Color) [][]Color {
 	return result
 }
 
+// Check, if a layer is only of one color
+func isUniformColor(layer[][]Color) bool {
+	initColor := layer[0][0]
+	for _, line := range(layer) {
+		for _, c := range(line) {
+			if c != initColor {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func maxOfSlice(x []int) int {
+	maxVal := 0
+	for _, value := range(x) {
+		if value > maxVal {
+			maxVal=value
+		}
+	}
+	return maxVal
+}
+
+// Return ident nr of layer
+func ident(layer [][]Color) string {
+	var val string
+	for _, v := range(layer) {
+		for _, w := range(v) {
+			val += w.String()
+		}
+	}
+	return val
+}
+
+// Return a heuristic. Max value is 3...
+func heuristic(layer [][]Color) int {
+	colorMap := map[Color]int{}
+	for _, line := range(layer) {
+		for _, element := range(line) {
+			colorMap[element] = 1
+		}
+	}
+	colorCount := 0
+	for _, c := range(colorMap) {
+		colorCount += c
+	}
+	return min(3, colorCount-1) // middle stone always has correct color, so decrease one
+}
+
 // Duplicate a layer
 func duplicate(layer [][]Color) [][]Color {
 	duplicate := make([][]Color, len(layer))

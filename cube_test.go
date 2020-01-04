@@ -100,11 +100,24 @@ func TestCubeActions(t *testing.T) {
 		back:   [][]Color{{red, red, red}, {red, red, red}, {red, red, red}},
 		left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
 
+    if isUniformColor(cube.front) == false {
+		t.Errorf("Uniform color check 1 did not work correctly.")
+	}
+	if heuristic(cube.front) != 0 {
+		t.Errorf("Heuristic calculation of front did not return expected 0")
+	}
     topCW0 := cube.actionTopLayerCW(0)
 	// fmt.Println(topCW0.showDetails())
 	if topCW0.front[0][0] != green || topCW0.left[0][0] != orange || topCW0.back[0][2] != blue {
 		t.Errorf("Turning top clockwise did not work properly")
 	}
+	if isUniformColor(topCW0.front) {
+		t.Errorf("Uniform color check 2 did not work correctly.")
+	}
+	if heuristic(topCW0.front) != 1 {
+		t.Errorf("Heuristic calculation of front did not return expected 1")
+	}
+
     topCW1 := cube.actionTopLayerCW(1)
 	// fmt.Println(topCW1.showDetails())
 	if topCW1.front[1][0] != green || topCW1.left[1][1] != orange || topCW1.back[1][2] != blue {

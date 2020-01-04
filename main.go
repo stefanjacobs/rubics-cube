@@ -1,12 +1,32 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"container/heap"
+	"log"
+	"os"
+	"runtime"
+	"runtime/pprof"
 )
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 
 func main() {
 	fmt.Println("Hello Rubik's Cube!")
+
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	// var c Color = red
 	// fmt.Println(c)
@@ -24,73 +44,83 @@ func main() {
 	// fmt.Println("NewCube looks like that: ", cube.turnTopCW().showDetails())
 
 	// fmt.Println("Turning back: ", cube.turnTopCW().turnTopCCW().showDetails() )
-	
+
 	// fmt.Println("Turning bottom ccw: ", cube.turnBottomCCW().showDetails())
 
-	// a star algorithm as written here: https://de.wikipedia.org/wiki/A*-Algorithmus
-	// Create Openlist with initial state
-	s0 := SimpleState{
-		state: 0,
-		previous: nil,
-		cost: 0,
+	// WORKING SIMPLESTATE
+	// s0 := SimpleState{
+	// 	state: 0,
+	// 	previous: nil,
+	// 	cost: 0,
+	// 	estimateOverall: -1,
+	// }
+
+	// solution := aStarSolve(s0)
+	// if solution == nil {
+	// 	fmt.Println("No solution found")
+	// 	return
+	// }
+	// for ;; {
+	// 	if solution == nil {
+	// 		fmt.Println("Breaking...")
+	// 		break
+	// 	}
+	// 	fmt.Printf("state: %s\n", solution.getHash())
+	// 	solution = solution.getPrevious()
+	// }
+
+	// RUBIKs CUBE
+	cube := Cube{
+		top:    [][]Color{{white, white, white}, {white, white, white}, {white, white, white}},
+		bottom: [][]Color{{yellow, yellow, yellow}, {yellow, yellow, yellow}, {yellow, yellow, yellow}},
+		front:  [][]Color{{orange, orange, orange}, {orange, orange, orange}, {orange, orange, orange}},
+		right:  [][]Color{{green, green, green}, {green, green, green}, {green, green, green}},
+		back:   [][]Color{{red, red, red}, {red, red, red}, {red, red, red}},
+		left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
+	// cube := Cube{
+	// 	top:    [][]Color{{blue, orange, yellow}, {green, white, orange}, {orange, orange, yellow}},
+	// 	bottom: [][]Color{{green, blue, white}, {orange, yellow, red}, {blue, blue, red}},
+	// 	left:   [][]Color{{white, red, green}, {red, blue, blue}, {yellow, green, white}},
+	// 	right:  [][]Color{{orange, white, blue}, {green, green, green}, {red, yellow, yellow}},
+	// 	front:  [][]Color{{white, blue, green}, {red, orange, yellow}, {red, yellow, blue}},
+	// 	back:   [][]Color{{red, yellow, orange}, {white, red, white}, {green, white, orange}}}
+
+	s0 := CubeState{
+		// state: cube.actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
+		state: cube.actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
+		// state: cube,
+		previous:        nil,
+		cost:            0,
 		estimateOverall: -1,
+		action:          "none",
 	}
-	openList := make(priorityQueue, 1)
-	openList[0] = (*SimpleState)(&s0)
-	heap.Init(&openList)
 
-	// Create an empty ClosedList
-	closedList := map[string]bool{} // check for existence with _, ok := s[6]
-	for ;; {
-		// if the openlist is empty, there is no solution
-		if openList.Len() == 0 {
-			fmt.Println("No solution found!")
+	solution := aStarSolve(s0)
+	if solution == nil {
+		fmt.Println("No solution found")
+		return
+	}
+	for {
+		if solution == nil {
+			fmt.Println("Breaking out of solution loop...")
 			break
 		}
+		// fmt.Printf("state: %s, Action: %s\n", solution.getHash(), solution.(CubeState).action)
+		fmt.Printf("state: %s\n", solution.getHash())
+		solution = solution.getPrevious()
+	}
 
-		// the current state is the first of the openlist
-		currentState := heap.Pop(&openList).(State)
+	fmt.Println("Done!")
 
-		// check, if the current state is the solution -> Done!
-		if currentState.isFinal() {
-			fmt.Println("Found solution!")
-			solution := currentState
-			for ;; {
-				if solution == nil {
-					fmt.Println("Breaking...")
-					break
-				}
-				fmt.Printf("state: %s\n", solution.getHash())
-				solution = solution.getPrevious()
-			}
-			break
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
 		}
-
-		// set current state to closed list.
-		closedList[currentState.getHash()] = true
-
-		// generate all children of current state
-		children := currentState.getChildren()
-		for _, child := range children {
-			if closedList[child.getHash()] {
-				// child is already on closed list -> nothing todo
-				continue
-			}
-			pos, alreadyOnOpenList := openList.Contains(child)
-			if alreadyOnOpenList != nil && alreadyOnOpenList.getEstimateOverall() <= child.getEstimate() {
-				// child is already on openlist AND
-				// the element on the openlist is less or equal expensive overall
-				continue
-			}
-			if alreadyOnOpenList != nil {
-				// child is cheaper than element on openlist -> replace and fix priorityqueue
-				openList[pos] = child
-				heap.Fix(&openList, pos)
-			} else {
-				// child is not yet on openlist, do it
-				heap.Push(&openList, child)
-			}
-
+		defer f.Close()
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
 		}
 	}
 }
