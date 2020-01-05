@@ -2,7 +2,7 @@ package main
 
 import (
 	"strconv"
-//	"fmt"
+	"fmt"
 )
 
 // CubeState is a search problem:
@@ -80,21 +80,26 @@ func (s CubeState) getPrevious() State {
 
 // return a string hash representation of the simple state
 func (s CubeState) getHash() int {
-	top := ident(s.state.top)
-	bot := ident(s.state.bottom)
-	fro := ident(s.state.front)
-	bac := ident(s.state.back)
-	lef := ident(s.state.left)
-	rig := ident(s.state.right)
-	return top + bot*intPow(8, 1) + fro*intPow(8, 2) +
-            bac*intPow(8,3) + lef*intPow(8,4) + rig*intPow(8,5)
 
-	// return strconv.Itoa(ident(s.state.top)) +
-	// 	strconv.Itoa(ident(s.state.bottom)) +
-	// 	strconv.Itoa(ident(s.state.back)) +
-	// 	strconv.Itoa(ident(s.state.front)) +
-	// 	strconv.Itoa(ident(s.state.left)) +
-	// 	strconv.Itoa(ident(s.state.right))
+// TODO: ggf. den getHash auf eine CubeState Var umlegen und bei
+// generate Children jeweils den Hash mit generieren...
+
+	fmt.Println("Calc Hash")
+	// top := ident(s.state.top)
+	// bot := ident(s.state.bottom)
+	// fro := ident(s.state.front)
+	// bac := ident(s.state.back)
+	// lef := ident(s.state.left)
+	// rig := ident(s.state.right)
+	// return top + bot*intPow(8, 1) + fro*intPow(8, 2) +
+    //         bac*intPow(8,3) + lef*intPow(8,4) + rig*intPow(8,5)
+
+	return (ident(s.state.top)) +
+		(ident(s.state.bottom))*8 +
+		(ident(s.state.back))*16 +
+		(ident(s.state.front))*24 +
+		(ident(s.state.left))*32+
+		(ident(s.state.right))*40
 
 	// return fmt.Sprintf("%v|%v|%v|%v|%v|%v", 
 	// 	s.state.front, s.state.back, s.state.top,
