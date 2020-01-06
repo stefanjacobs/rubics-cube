@@ -66,8 +66,8 @@ func (s SimpleState) getPrevious() State {
 }
 
 // return a string hash representation of the simple state
-func (s SimpleState) getHash() int {
-	return s.state
+func (s SimpleState) getHash() uint64 {
+	return uint64(s.state)
 }
 
     // return Cost + Estimate, if estimate Overall is not yet calculated

@@ -2,20 +2,23 @@ package main
 
 import (
 	"fmt"
+	// "crypto/sha256"
+	"encoding/binary"
 	//	"math"
 )
 
 // Cube is a representation of a Rubiks Cube
 type Cube struct {
-	top, bottom, left, right, front, back [][]Color
+	Top, Bottom, Left, Right, Front, Back [][]Color
+	hash uint64
 }
 
 func (cube Cube) showDetails() string {
 	desc := ""
-	desc += "Top: " + fmt.Sprintf("%v", cube.top) + "\n"
-	desc += "Fro: " + fmt.Sprintf("%v", cube.front) + " Right: " + fmt.Sprintf("%v", cube.right) + " "
-	desc += "Back: " + fmt.Sprintf("%v", cube.back) + " Left: " + fmt.Sprintf("%v", cube.left) + "\n"
-	desc += "Bot: " + fmt.Sprintf("%v", cube.bottom) + "\n"
+	desc += "Top: " + fmt.Sprintf("%v", cube.Top) + "\n"
+	desc += "Fro: " + fmt.Sprintf("%v", cube.Front) + " Right: " + fmt.Sprintf("%v", cube.Right) + " "
+	desc += "Back: " + fmt.Sprintf("%v", cube.Back) + " Left: " + fmt.Sprintf("%v", cube.Left) + "\n"
+	desc += "Bot: " + fmt.Sprintf("%v", cube.Bottom) + "\n"
 	return desc
 }
 
@@ -115,6 +118,7 @@ func ident(layer [][]Color) int {
 			val += w.Int() * intPow(8, curPos)
 		}
 	}
+	fmt.Printf("%v\n", val)
 	return val
 }
 
@@ -146,448 +150,467 @@ func duplicate(layer [][]Color) [][]Color {
 // turn Top Clock Wise
 func (cube Cube) turnTopCW() Cube {
 	newCube := Cube{
-		top:    clockwise(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    clockwise(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	buffer := newCube.front[0]
-	newCube.front[0] = newCube.right[0]
-	newCube.right[0] = newCube.back[0]
-	newCube.back[0] = newCube.left[0]
-	newCube.left[0] = buffer
+	buffer := newCube.Front[0]
+	newCube.Front[0] = newCube.Right[0]
+	newCube.Right[0] = newCube.Back[0]
+	newCube.Back[0] = newCube.Left[0]
+	newCube.Left[0] = buffer
 
-	return newCube
+	return newCube.hashify()
+}
+
+func (cube Cube) hashify() Cube {
+	sideLength := len(cube.Top)
+	var tmp []byte
+	for i:=0; i < sideLength; i++ {
+		for j:=0; j < sideLength; j++ {
+			tmp = append(tmp, cube.Top[i][j].Byte())
+			tmp = append(tmp, cube.Bottom[i][j].Byte())
+			tmp = append(tmp, cube.Front[i][j].Byte())
+			tmp = append(tmp, cube.Back[i][j].Byte())
+			tmp = append(tmp, cube.Left[i][j].Byte())
+			tmp = append(tmp, cube.Right[i][j].Byte())
+		}
+	}
+	// fmt.Printf("Tmp: %v\n", tmp)
+	cube.hash = uint64(binary.LittleEndian.Uint64(tmp))
+	// fmt.Printf("Hash: %v\n", cube.hash)
+	return cube
 }
 
 // turn Top Counterclock Wise
 func (cube Cube) turnTopCCW() Cube {
 	newCube := Cube{
-		top:    counterClockwise(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    counterClockwise(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	buffer := newCube.front[0]
-	newCube.front[0] = newCube.left[0]
-	newCube.left[0] = newCube.back[0]
-	newCube.back[0] = newCube.right[0]
-	newCube.right[0] = buffer
+	buffer := newCube.Front[0]
+	newCube.Front[0] = newCube.Left[0]
+	newCube.Left[0] = newCube.Back[0]
+	newCube.Back[0] = newCube.Right[0]
+	newCube.Right[0] = buffer
 
-	return newCube
+	return newCube.hashify()
 }
 
 // turn Bottom Clock Wise
 func (cube Cube) turnBottomCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: clockwise(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: clockwise(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	lastLayer := len(newCube.front) - 1
-	buffer := newCube.front[lastLayer]
-	newCube.front[lastLayer] = newCube.left[lastLayer]
-	newCube.left[lastLayer] = newCube.back[lastLayer]
-	newCube.back[lastLayer] = newCube.right[lastLayer]
-	newCube.right[lastLayer] = buffer
+	lastLayer := len(newCube.Front) - 1
+	buffer := newCube.Front[lastLayer]
+	newCube.Front[lastLayer] = newCube.Left[lastLayer]
+	newCube.Left[lastLayer] = newCube.Back[lastLayer]
+	newCube.Back[lastLayer] = newCube.Right[lastLayer]
+	newCube.Right[lastLayer] = buffer
 
-	return newCube
+	return newCube.hashify()
 }
 
 // turn Bottom Counterclock Wise
 func (cube Cube) turnBottomCCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: counterClockwise(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: counterClockwise(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	lastLayer := len(newCube.front) - 1
-	buffer := newCube.front[lastLayer]
-	newCube.front[lastLayer] = newCube.right[lastLayer]
-	newCube.right[lastLayer] = newCube.back[lastLayer]
-	newCube.back[lastLayer] = newCube.left[lastLayer]
-	newCube.left[lastLayer] = buffer
+	lastLayer := len(newCube.Front) - 1
+	buffer := newCube.Front[lastLayer]
+	newCube.Front[lastLayer] = newCube.Right[lastLayer]
+	newCube.Right[lastLayer] = newCube.Back[lastLayer]
+	newCube.Back[lastLayer] = newCube.Left[lastLayer]
+	newCube.Left[lastLayer] = buffer
 
-	return newCube
+	return newCube.hashify()
 }
 
 // turn Front clockwise
 func (cube Cube) turnFrontCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  clockwise(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  clockwise(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.front)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Front)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[len-1][i] = newCube.left[len-1-i][len-1]
-		newCube.bottom[0][i] = newCube.right[len-1-i][0]
+		newCube.Top[len-1][i] = newCube.Left[len-1-i][len-1]
+		newCube.Bottom[0][i] = newCube.Right[len-1-i][0]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][0] = bT[len-1][i]
-		newCube.left[i][len-1] = bB[0][i]
+		newCube.Right[i][0] = bT[len-1][i]
+		newCube.Left[i][len-1] = bB[0][i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 // turn Front counterclockwise
 func (cube Cube) turnFrontCCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  counterClockwise(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  counterClockwise(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.front)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Front)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[len-1][i] = newCube.right[i][0]
-		newCube.bottom[0][i] = newCube.left[i][len-1]
+		newCube.Top[len-1][i] = newCube.Right[i][0]
+		newCube.Bottom[0][i] = newCube.Left[i][len-1]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][0] = bB[0][len-1-i]
-		newCube.left[i][len-1] = bT[len-1][len-1-i]
+		newCube.Right[i][0] = bB[0][len-1-i]
+		newCube.Left[i][len-1] = bT[len-1][len-1-i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
-// turn back clockwise
+// turn Back clockwise
 func (cube Cube) turnBackCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   clockwise(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   clockwise(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[0][i] = newCube.right[i][len-1]
-		newCube.bottom[len-1][i] = newCube.left[i][0]
+		newCube.Top[0][i] = newCube.Right[i][len-1]
+		newCube.Bottom[len-1][i] = newCube.Left[i][0]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][len-1] = bB[len-1][len-1-i]
-		newCube.left[i][0] = bT[0][len-1-i]
+		newCube.Right[i][len-1] = bB[len-1][len-1-i]
+		newCube.Left[i][0] = bT[0][len-1-i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
-// turn back counterclockwise
+// turn Back counterclockwise
 func (cube Cube) turnBackCCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   counterClockwise(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   counterClockwise(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[0][i] = newCube.left[len-1-i][0]
-		newCube.bottom[len-1][i] = newCube.right[len-1-i][len-1]
+		newCube.Top[0][i] = newCube.Left[len-1-i][0]
+		newCube.Bottom[len-1][i] = newCube.Right[len-1-i][len-1]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][len-1] = bT[0][i]
-		newCube.left[i][0] = bB[len-1][i]
+		newCube.Right[i][len-1] = bT[0][i]
+		newCube.Left[i][0] = bB[len-1][i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) turnRightCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  clockwise(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  clockwise(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][len-1] = newCube.front[i][len-1]
-		newCube.bottom[i][len-1] = newCube.back[len-1-i][0]
+		newCube.Top[i][len-1] = newCube.Front[i][len-1]
+		newCube.Bottom[i][len-1] = newCube.Back[len-1-i][0]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][len-1] = bB[i][len-1]
-		newCube.back[len-1-i][0] = bT[i][len-1]
+		newCube.Front[i][len-1] = bB[i][len-1]
+		newCube.Back[len-1-i][0] = bT[i][len-1]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) turnRightCCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  counterClockwise(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  counterClockwise(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][len-1] = newCube.back[len-1-i][0]
-		newCube.bottom[i][len-1] = newCube.front[i][len-1]
+		newCube.Top[i][len-1] = newCube.Back[len-1-i][0]
+		newCube.Bottom[i][len-1] = newCube.Front[i][len-1]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][len-1] = bT[i][len-1]
-		newCube.back[len-1-i][0] = bB[i][len-1]
+		newCube.Front[i][len-1] = bT[i][len-1]
+		newCube.Back[len-1-i][0] = bB[i][len-1]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) turnLeftCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   clockwise(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   clockwise(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][0] = newCube.back[len-1-i][len-1]
-		newCube.bottom[i][0] = newCube.front[i][0]
+		newCube.Top[i][0] = newCube.Back[len-1-i][len-1]
+		newCube.Bottom[i][0] = newCube.Front[i][0]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][0] = bT[i][0]
-		newCube.back[len-1-i][len-1] = bB[i][0]
+		newCube.Front[i][0] = bT[i][0]
+		newCube.Back[len-1-i][len-1] = bB[i][0]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) turnLeftCCW() Cube {
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   counterClockwise(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   counterClockwise(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][0] = newCube.front[i][0]
-		newCube.bottom[i][0] = newCube.back[len-1-i][len-1]
+		newCube.Top[i][0] = newCube.Front[i][0]
+		newCube.Bottom[i][0] = newCube.Back[len-1-i][len-1]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][0] = bB[i][0]
-		newCube.back[len-1-i][len-1] = bT[i][0]
+		newCube.Front[i][0] = bB[i][0]
+		newCube.Back[len-1-i][len-1] = bT[i][0]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) actionTopLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnTopCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnBottomCCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	buffer := newCube.front[layer]
-	newCube.front[layer] = newCube.right[layer]
-	newCube.right[layer] = newCube.back[layer]
-	newCube.back[layer] = newCube.left[layer]
-	newCube.left[layer] = buffer
+	buffer := newCube.Front[layer]
+	newCube.Front[layer] = newCube.Right[layer]
+	newCube.Right[layer] = newCube.Back[layer]
+	newCube.Back[layer] = newCube.Left[layer]
+	newCube.Left[layer] = buffer
 	return newCube
 }
 
 func (cube Cube) actionTopLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnTopCCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnBottomCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
 	// Surrounding layers have to be moved:
-	buffer := newCube.front[layer]
-	newCube.front[layer] = newCube.left[layer]
-	newCube.left[layer] = newCube.back[layer]
-	newCube.back[layer] = newCube.right[layer]
-	newCube.right[layer] = buffer
-	return newCube
+	buffer := newCube.Front[layer]
+	newCube.Front[layer] = newCube.Left[layer]
+	newCube.Left[layer] = newCube.Back[layer]
+	newCube.Back[layer] = newCube.Right[layer]
+	newCube.Right[layer] = buffer
+	return newCube.hashify()
 }
 
 func (cube Cube) actionFrontLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnFrontCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnBackCCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
-	len := len(newCube.front)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Front)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[len-1-layer][i] = newCube.left[len-1-i][len-1-layer]
-		newCube.bottom[layer][i] = newCube.right[len-1-i][layer]
+		newCube.Top[len-1-layer][i] = newCube.Left[len-1-i][len-1-layer]
+		newCube.Bottom[layer][i] = newCube.Right[len-1-i][layer]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][layer] = bT[len-1-layer][i]
-		newCube.left[i][len-1-layer] = bB[layer][i]
+		newCube.Right[i][layer] = bT[len-1-layer][i]
+		newCube.Left[i][len-1-layer] = bB[layer][i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) actionFrontLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnFrontCCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnBackCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  duplicate(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  duplicate(cube.Right)}
 
-	len := len(newCube.front)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Front)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[len-1-layer][i] = newCube.right[i][layer]
-		newCube.bottom[layer][i] = newCube.left[i][len-1-layer]
+		newCube.Top[len-1-layer][i] = newCube.Right[i][layer]
+		newCube.Bottom[layer][i] = newCube.Left[i][len-1-layer]
 	}
 	for i := 0; i < len; i++ {
-		newCube.right[i][layer] = bB[layer][len-1-i]
-		newCube.left[i][len-1-layer] = bT[len-1-layer][len-1-i]
+		newCube.Right[i][layer] = bB[layer][len-1-i]
+		newCube.Left[i][len-1-layer] = bT[len-1-layer][len-1-i]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) actionRightLayerCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnRightCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnLeftCCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  clockwise(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  clockwise(cube.Right)}
 	// Surrounding layers have to be moved:
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][len-1-layer] = newCube.front[i][len-1-layer]
-		newCube.bottom[i][len-1-layer] = newCube.back[len-1-i][layer]
+		newCube.Top[i][len-1-layer] = newCube.Front[i][len-1-layer]
+		newCube.Bottom[i][len-1-layer] = newCube.Back[len-1-i][layer]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][len-1-layer] = bB[i][len-1-layer]
-		newCube.back[len-1-i][layer] = bT[i][len-1-layer]
+		newCube.Front[i][len-1-layer] = bB[i][len-1-layer]
+		newCube.Back[len-1-i][layer] = bT[i][len-1-layer]
 	}
 
-	return newCube
+	return newCube.hashify()
 }
 
 func (cube Cube) actionRightLayerCCW(layer int) Cube {
 	if layer == 0 {
 		return cube.turnRightCCW()
-	} else if layer == len(cube.top[0])-1 {
+	} else if layer == len(cube.Top[0])-1 {
 		return cube.turnLeftCW()
 	}
 	newCube := Cube{
-		top:    duplicate(cube.top),
-		bottom: duplicate(cube.bottom),
-		front:  duplicate(cube.front),
-		left:   duplicate(cube.left),
-		back:   duplicate(cube.back),
-		right:  clockwise(cube.right)}
+		Top:    duplicate(cube.Top),
+		Bottom: duplicate(cube.Bottom),
+		Front:  duplicate(cube.Front),
+		Left:   duplicate(cube.Left),
+		Back:   duplicate(cube.Back),
+		Right:  clockwise(cube.Right)}
 	// Surrounding layers have to be moved
-	len := len(newCube.back)
-	bT := duplicate(newCube.top)
-	bB := duplicate(newCube.bottom)
+	len := len(newCube.Back)
+	bT := duplicate(newCube.Top)
+	bB := duplicate(newCube.Bottom)
 	for i := 0; i < len; i++ {
-		newCube.top[i][len-1-layer] = newCube.back[len-1-i][layer]
-		newCube.bottom[i][len-1-layer] = newCube.front[i][len-1-layer]
+		newCube.Top[i][len-1-layer] = newCube.Back[len-1-i][layer]
+		newCube.Bottom[i][len-1-layer] = newCube.Front[i][len-1-layer]
 	}
 	for i := 0; i < len; i++ {
-		newCube.front[i][len-1-layer] = bT[i][len-1-layer]
-		newCube.back[len-1-i][layer] = bB[i][len-1-layer]
+		newCube.Front[i][len-1-layer] = bT[i][len-1-layer]
+		newCube.Back[len-1-i][layer] = bB[i][len-1-layer]
 	}
 
-	return newCube
+	return newCube.hashify()
 
 }

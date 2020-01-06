@@ -22,7 +22,7 @@ type State interface {
     getPrevious() State
 
     // return a hash value of the state
-    getHash() int
+    getHash() uint64
 
     // return Cost + Estimate
     getEstimateOverall() int

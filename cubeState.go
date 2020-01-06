@@ -2,7 +2,8 @@ package main
 
 import (
 	"strconv"
-	"fmt"
+//	"github.com/mitchellh/hashstructure"
+//	"fmt"
 )
 
 // CubeState is a search problem:
@@ -12,19 +13,20 @@ type CubeState struct {
 	cost            int
 	estimateOverall int
 	action          string
+	Hash			int
 }
 
 // check, if final state is reached
 func (s CubeState) isFinal() bool {
-	return isUniformColor(s.state.top) && isUniformColor(s.state.bottom) &&
-		isUniformColor(s.state.front) && isUniformColor(s.state.back) &&
-		isUniformColor(s.state.left) && isUniformColor(s.state.right)
+	return isUniformColor(s.state.Top) && isUniformColor(s.state.Bottom) &&
+		isUniformColor(s.state.Front) && isUniformColor(s.state.Back) &&
+		isUniformColor(s.state.Left) && isUniformColor(s.state.Right)
 }
 
 // generate all follow-up CubeStates and return list of new States
 func (s CubeState) getChildren() []State {
 	var res []State
-	for i := 0; i < len(s.state.top); i++ {
+	for i := 0; i < len(s.state.Top); i++ {
 		res = append(res, CubeState{
 			state:    s.state.actionFrontLayerCCW(i),
 			previous: &s, cost: s.cost + 1, estimateOverall: -1,
@@ -56,12 +58,12 @@ func (s CubeState) getChildren() []State {
 // return an estimate to the final state -> no overestimation for admissible heuristic
 func (s CubeState) getEstimate() int {
 	var m []int
-	m = append(m, heuristic(s.state.front))
-	m = append(m, heuristic(s.state.back))
-	m = append(m, heuristic(s.state.left))
-	m = append(m, heuristic(s.state.right))
-	m = append(m, heuristic(s.state.top))
-	m = append(m, heuristic(s.state.bottom))
+	m = append(m, heuristic(s.state.Front))
+	m = append(m, heuristic(s.state.Back))
+	m = append(m, heuristic(s.state.Left))
+	m = append(m, heuristic(s.state.Right))
+	m = append(m, heuristic(s.state.Top))
+	m = append(m, heuristic(s.state.Bottom))
 	return maxOfSlice(m)
 }
 
@@ -79,31 +81,33 @@ func (s CubeState) getPrevious() State {
 }
 
 // return a string hash representation of the simple state
-func (s CubeState) getHash() int {
-
+func (s CubeState) getHash() uint64 {
+	// hash, _ := hashstructure.Hash(s.state, nil)
+	// fmt.Printf("Value %v\n", hash)
+	return s.state.hash
 // TODO: ggf. den getHash auf eine CubeState Var umlegen und bei
 // generate Children jeweils den Hash mit generieren...
 
-	fmt.Println("Calc Hash")
-	// top := ident(s.state.top)
-	// bot := ident(s.state.bottom)
-	// fro := ident(s.state.front)
-	// bac := ident(s.state.back)
-	// lef := ident(s.state.left)
-	// rig := ident(s.state.right)
-	// return top + bot*intPow(8, 1) + fro*intPow(8, 2) +
+	// fmt.Println("Calc Hash")
+	// Top := ident(s.state.Top)
+	// bot := ident(s.state.Bottom)
+	// fro := ident(s.state.Front)
+	// bac := ident(s.state.Back)
+	// lef := ident(s.state.Left)
+	// rig := ident(s.state.Right)
+	// return Top + bot*intPow(8, 1) + fro*intPow(8, 2) +
     //         bac*intPow(8,3) + lef*intPow(8,4) + rig*intPow(8,5)
 
-	return (ident(s.state.top)) +
-		(ident(s.state.bottom))*8 +
-		(ident(s.state.back))*16 +
-		(ident(s.state.front))*24 +
-		(ident(s.state.left))*32+
-		(ident(s.state.right))*40
+	// return (ident(s.state.Top)) +
+	// 	(ident(s.state.Bottom))*8 +
+	// 	(ident(s.state.Back))*16 +
+	// 	(ident(s.state.Front))*24 +
+	// 	(ident(s.state.Left))*32+
+	// 	(ident(s.state.Right))*40
 
 	// return fmt.Sprintf("%v|%v|%v|%v|%v|%v", 
-	// 	s.state.front, s.state.back, s.state.top,
-	//  	s.state.bottom, s.state.left, s.state.right)
+	// 	s.state.Front, s.state.Back, s.state.Top,
+	//  	s.state.Bottom, s.state.Left, s.state.Right)
 }
 
 // return Cost + Estimate, if estimate Overall is not yet calculated

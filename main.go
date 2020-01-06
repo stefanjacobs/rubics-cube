@@ -70,25 +70,25 @@ func main() {
 	// }
 
 	// RUBIKs CUBE
-	cube := Cube{
-		top:    [][]Color{{white, white, white}, {white, white, white}, {white, white, white}},
-		bottom: [][]Color{{yellow, yellow, yellow}, {yellow, yellow, yellow}, {yellow, yellow, yellow}},
-		front:  [][]Color{{orange, orange, orange}, {orange, orange, orange}, {orange, orange, orange}},
-		right:  [][]Color{{green, green, green}, {green, green, green}, {green, green, green}},
-		back:   [][]Color{{red, red, red}, {red, red, red}, {red, red, red}},
-		left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
 	// cube := Cube{
-	// 	top:    [][]Color{{blue, orange, yellow}, {green, white, orange}, {orange, orange, yellow}},
-	// 	bottom: [][]Color{{green, blue, white}, {orange, yellow, red}, {blue, blue, red}},
-	// 	left:   [][]Color{{white, red, green}, {red, blue, blue}, {yellow, green, white}},
-	// 	right:  [][]Color{{orange, white, blue}, {green, green, green}, {red, yellow, yellow}},
-	// 	front:  [][]Color{{white, blue, green}, {red, orange, yellow}, {red, yellow, blue}},
-	// 	back:   [][]Color{{red, yellow, orange}, {white, red, white}, {green, white, orange}}}
+	// 	Top:    [][]Color{{white, white, white}, {white, white, white}, {white, white, white}},
+	// 	Bottom: [][]Color{{yellow, yellow, yellow}, {yellow, yellow, yellow}, {yellow, yellow, yellow}},
+	// 	Front:  [][]Color{{orange, orange, orange}, {orange, orange, orange}, {orange, orange, orange}},
+	// 	Right:  [][]Color{{green, green, green}, {green, green, green}, {green, green, green}},
+	// 	Back:   [][]Color{{red, red, red}, {red, red, red}, {red, red, red}},
+	// 	Left:   [][]Color{{blue, blue, blue}, {blue, blue, blue}, {blue, blue, blue}}}
+	cube := Cube{
+		Top:    [][]Color{{blue, orange, yellow}, {green, white, orange}, {orange, orange, yellow}},
+		Bottom: [][]Color{{green, blue, white}, {orange, yellow, red}, {blue, blue, red}},
+		Left:   [][]Color{{white, red, green}, {red, blue, blue}, {yellow, green, white}},
+		Right:  [][]Color{{orange, white, blue}, {green, green, green}, {red, yellow, yellow}},
+		Front:  [][]Color{{white, blue, green}, {red, orange, yellow}, {red, yellow, blue}},
+		Back:   [][]Color{{red, yellow, orange}, {white, red, white}, {green, white, orange}}}
 
 	s0 := CubeState{
 		// state: cube.actionTopLayerCW(2).actionRightLayerCCW(1).actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
-		state: cube.actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
-		// state: cube,
+		// state: cube.actionFrontLayerCCW(1).actionFrontLayerCCW(1).actionTopLayerCCW(0).actionRightLayerCCW(2).actionTopLayerCW(1).actionRightLayerCCW(0),
+		state: cube,
 		previous:        nil,
 		cost:            0,
 		estimateOverall: -1,

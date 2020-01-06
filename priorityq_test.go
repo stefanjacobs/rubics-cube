@@ -9,7 +9,7 @@ import (
 func TestPriorityQ(t *testing.T) {
 	listStates := []*SimpleState{
 		{state: 2, previous: nil, cost: 2, estimateOverall: -1},
-		{state: -2, previous: nil, cost: 2, estimateOverall: -1},
+		{state: 0, previous: nil, cost: 2, estimateOverall: -1},
 		{state: 5, previous: nil, cost: 4, estimateOverall: -1},
 		{state: 3, previous: nil, cost: 3, estimateOverall: -1},
 	}
@@ -56,7 +56,7 @@ func TestPriorityQ(t *testing.T) {
 		t.Errorf("First item in priority was not the expected one...")
 	}
 	item = heap.Pop(&pQueue).(*SimpleState)
-	if item.getHash() != -2 {
+	if item.getHash() != 0 {
 		t.Errorf("First item in priority was not the expected one...")
 	}
 }

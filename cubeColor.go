@@ -4,7 +4,8 @@ package main
 type Color int
 
 const (
-    red Color = iota // 0 
+    _ Color = iota
+    red
     blue
     white
 	orange
@@ -13,9 +14,13 @@ const (
 )
 
 func (c Color) String() string {
-    return [...]string{"R", "B", "W", "O", "Y", "G"}[c]
+    return [...]string{"_", "R", "B", "W", "O", "Y", "G"}[c]
 }
 
 func (c Color) Int() int {
-    return [...]int{0, 1, 2, 3, 4, 5}[c]
+    return [...]int{0, 1, 2, 3, 4, 5, 6}[c]
+}
+
+func (c Color) Byte() byte {
+    return [...]byte{0, 1, 2, 3, 4, 5, 6}[c]
 }

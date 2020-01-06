@@ -11,7 +11,7 @@ func aStarSolve(s0 State) State {
 	heap.Init(&openList)
 
 	// Create an empty ClosedList
-	closedList := map[int]bool{} // check for existence with _, ok := s[6]
+	closedList := map[uint64]bool{} // check for existence with _, ok := s[6]
 	for ;; {
 		// if the openlist is empty, there is no solution
 		if openList.Len() == 0 {
@@ -28,21 +28,22 @@ func aStarSolve(s0 State) State {
 			if closedList[child.getHash()] { // child is already on closed list -> nothing todo
 				continue
 			}
-			pos, alreadyOnOpenList := openList.Contains(child)
-			if alreadyOnOpenList != nil && alreadyOnOpenList.getEstimateOverall() <= child.getEstimate() {
-				// child is already on openlist AND
-				// the element on the openlist is less or equal expensive overall
-				continue
-			}
-			if alreadyOnOpenList != nil { // child is cheaper than element on openlist -> replace and fix priorityqueue
-				openList[pos] = child
-				heap.Fix(&openList, pos)
-			} else { // child is not yet on openlist, do it
-				heap.Push(&openList, child)
-			}
+			// pos, alreadyOnOpenList := openList.Contains(child)
+			// if alreadyOnOpenList != nil && alreadyOnOpenList.getEstimateOverall() <= child.getEstimate() {
+			// 	// child is already on openlist AND
+			// 	// the element on the openlist is less or equal expensive overall
+			// 	continue
+			// }
+			// if alreadyOnOpenList != nil { // child is cheaper than element on openlist -> replace and fix priorityqueue
+			// 	openList[pos] = child
+			// 	heap.Fix(&openList, pos)
+			// } else { // child is not yet on openlist, do it
+			// 	heap.Push(&openList, child)
+			// }
+			heap.Push(&openList, child)
 		}
 		if len(closedList)%100 == 0 {
-			fmt.Printf("OL: %v, CL: %v\n", len(openList), len(closedList))
+			fmt.Printf("OL: %v, CL: %v, Cost: %v, Est: %v\n", len(openList), len(closedList), currentState.getCost(), currentState.getEstimateOverall())
 		}
 	}
 }
